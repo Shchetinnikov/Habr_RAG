@@ -1,0 +1,4 @@
+pydantic
+pydantic-settings
+langchain-mistralai
+langchain-groq
