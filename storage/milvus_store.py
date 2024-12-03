@@ -12,7 +12,7 @@ from pymilvus import (
     connections,
 )
 
-from models import bge, bm25
+from models import embedder, bm25
 from ..storage.load_data import dataset, parse_doc
 
 load_dotenv()
@@ -25,7 +25,7 @@ connections.connect(uri=CONNECTION_URI)
 
 # Define encoder's functions
 logging.info("Dense & sparse embedders...")
-dense_embedding_func = bge
+dense_embedding_func = embedder
 sparse_embedding_func = bm25
 
 # Define schema of database
@@ -72,7 +72,7 @@ entities = []
 for index, doc in enumerate(dataset):
     text = parse_doc(doc)
     entity = {
-        dense_field: bge.embed_query(text),
+        dense_field: embedder.embed_query(text),
         sparse_field: bm25.embed_query(text),
         text_field: text,
     }
