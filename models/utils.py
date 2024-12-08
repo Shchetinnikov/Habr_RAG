@@ -14,4 +14,4 @@ def rerank(query, texts):
         ranks[index] = reranker.similarity(query_emb, passage_emb).item()
     indexes = ranks.argsort()[::-1]
 
-    return indexes
+    return [texts[idx] for idx in indexes]
