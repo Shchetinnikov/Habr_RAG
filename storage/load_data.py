@@ -4,29 +4,29 @@ from datasets import load_dataset
 
 # Document parsing
 def parse_doc(doc):
-    if doc['original_author'] and doc['original_url']:
-        return f"""
-                {doc['title']}\n
-                {doc['text_markdown']}\n
-                \n
-                Автор статьи: {doc['author']}\n
-                Ссылка на статью: {doc['url']}\n
-                \n
-                Автор оригинальной статьи: {doc['original_author']}\n
-                Ссылка на оригинальную статью: {doc['original_url']}\n
-                \n
-                Теги: {reduce(lambda a, b: a + " " + b, doc['tags'])}
-            """
-    else:
-        return f"""
-                {doc['title']}\n
-                {doc['text_markdown']}\n
-                \n
-                Автор статьи: {doc['author']}\n
-                Ссылка на статью: {doc['url']}\n
-                \n
-                Теги: {reduce(lambda a, b: a + " " + b, doc['tags'])}
-            """
+    text = ""
+    if doc['title'] is not None:
+        text += f"Заголовок:\n {doc['title']}\n\n"
+    if doc['text_markdown'] is not None:
+        text += f"Текст:\n {doc['text_markdown']}\n\n"
+    if doc['author'] is not None:
+        text += f"Автор статьи: {doc['author']}\n"
+    if doc['url'] is not None:
+        text += f"Ссылка на статью: {doc['url']}\n\n"
+    if doc['original_author'] is not None:
+        text += f"Автор оригинальной статьи: {doc['original_author']}\n"
+    if doc['original_url'] is not None:
+        text += f"Ссылка на оригинальную статью: {doc['original_url']}\n\n"
+    if len(doc['labels']) != 0:
+        text += f"Метки: {reduce(lambda a, b: a + " " + b, doc['labels'])}\n "
+    if len(doc['hubs']) != 0:
+        text += f"Хабы: {reduce(lambda a, b: a + " " + b, doc['hubs'])}\n"
+    if len(doc['tags']) != 0:
+        text += f"Теги: {reduce(lambda a, b: a + " " + b, doc['tags'])}\n"
+    if doc['format'] is not None:
+        text += f"Формат: {doc['format']}"
+
+    return text
 
 # Load data for BM25 corpus
 def load_docs():
