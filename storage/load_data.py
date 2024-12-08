@@ -19,6 +19,8 @@ def parse_doc(doc):
         text += f"Ссылка на оригинальную статью: {doc['original_url']}\n\n"
     if len(doc['labels']) != 0:
         text += f"Метки: {reduce(lambda a, b: a + " " + b, doc['labels'])}\n "
+    if len(doc['flows']) != 0:
+        text += f"Потоки: {reduce(lambda a, b: a + " " + b, doc['flows'])}\n "
     if len(doc['hubs']) != 0:
         text += f"Хабы: {reduce(lambda a, b: a + " " + b, doc['hubs'])}\n"
     if len(doc['tags']) != 0:
