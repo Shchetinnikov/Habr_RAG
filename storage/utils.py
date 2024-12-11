@@ -1,9 +1,18 @@
 import logging
 from functools import reduce
-from datasets import load_dataset
+
+from milvus_model import (
+    dataset, 
+    collection, 
+    dense_field, 
+    sparse_field, 
+    text_field, 
+    dense_embedding_func, 
+    sparse_embedding_func)
+
 
 # Document parsing
-def parse_doc(doc):
+def doc_to_text(doc):
     text = ""
     if doc['title'] is not None:
         text += f"Заголовок:\n {doc['title']}\n\n"
@@ -37,7 +46,7 @@ def load_docs():
 
     logging.info("Data loading...")
     for index, item in enumerate(dataset):
-        docs.append(parse_doc(item))
+        docs.append(doc_to_text(item))
         
         if index // 10 == 0 or index == 0:
             logging.info("Iteration: ", index + 1)
@@ -46,12 +55,26 @@ def load_docs():
             return docs
 
 
+# Update retriever collection
+def update_collection(docs, log_step=10):
+    logging.info("Data loading...")
+    entities = []
+    for index, doc in enumerate(docs):
+        text = doc_to_text(doc)
+        entity = {
+            dense_field: dense_embedding_func.embed_query(text),
+            sparse_field: sparse_embedding_func.embed_query(text),
+            text_field: text,
+        }
+        entities.append(entity)
+        if index // log_step == 0:
+            logging.info("Iteration: ", index + 1)
+            collection.insert(entities)
+            del entities
+            entities = []
 
-# Logging 
-logging.basicConfig(level=logging.INFO, filename="../logs/data_loading.log", filemode="w")
+    collection.insert(entities)
+    collection.load()
+    logging.info("The data download is complete.")
 
-# Load dataset variable
-try:
-    dataset = load_dataset('IlyaGusev/habr', split="train", streaming=True)
-except:
-    logging.error("Error occured during huggingface dataset loading on streaming mode")
+    return collection

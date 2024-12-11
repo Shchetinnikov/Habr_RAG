@@ -1,6 +1,23 @@
 import numpy as np
-from models.models import reranker
+from models.models import reranker, bm25
 from langchain_core.prompts import ChatPromptTemplate
+
+# Get key words from query
+def get_key_words(query):
+    term_importance = {}
+
+    for term in bm25.analyzer.tokenizer.tokenize(query):
+        importances = bm25.bm25_ef.encode_queries([term]).toarray()[0]
+        indexes = np.where(importances != 0)[0]
+        index = indexes[0] if len(indexes) != 0 else 0
+        importance = importances[index]
+
+        term_importance[term] = importance.item()
+
+    term_importance = {k: v for k, v in sorted(term_importance.items(), key=lambda item: item[1], reverse=True)}
+    key_words = list(term_importance.keys())[:3]
+    
+    return key_words
 
 def rerank(query, texts):
     input_texts = [f'query: {query}'] + \
