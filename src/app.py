@@ -1,21 +1,45 @@
-from langchain import hub
+from langchain_milvus import Milvus
+from models.models import embedder, llm
+from langchain.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 
-import numpy as np
-from storage.milvus_store import retriever
-from models.utils import rerank
-from models import llm
+prompt = PromptTemplate(
+    input_variables=["context", "question"],
+    template="""
+Вы являетесь помощником, который находит соответствующие URL-адреса для ответа на вопрос пользователя на основе предоставленных документов.
+Вот контекст с метаданными:
+{context}
 
+Вопрос: {question}
+Пожалуйста, предоставьте список URL-адресов наиболее релевантных документов.
+"""
+)
 
-prompt = hub.pull("rlm/rag-prompt")
+URI = "./milvus_example_1.db"
 
-query = '...'
+vector_store = Milvus(
+    embedding_function=embedder,
+    connection_args={"uri": URI},
+)
 
-chunks = retriever.invoke(query)
-texts = [chunk.page_content for chunk in chunks]
-reranked_texts = rerank(query, texts)
+def format_docs(documents):
+    context = []
+    for doc in documents:
+        url = doc.metadata.get("url", "No URL available")
+        title = doc.metadata.get("title", "No Title")
+        content = doc.page_content
+        context.append(f"Title: {title}\nURL: {url}\nContent: {content}") 
+    return "\n\n".join(context)
 
-docs_content = "\n\n".join(doc for doc in reranked_texts)
-messages = prompt.invoke({"question": query, "context": docs_content})
+qa_chain = (
+    {
+        "context": vector_store.as_retriever() | format_docs,
+        "question": RunnablePassthrough(),
+    }
+    | prompt
+    | llm
+    | StrOutputParser()
+)
 
-response = llm.invoke(messages)
-print(response.content)
+print(qa_chain.invoke("что такое python?"))
