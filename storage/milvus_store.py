@@ -1,7 +1,6 @@
 import os
 import logging
 from dotenv import load_dotenv
-from datasets import load_dataset
 from langchain_milvus.retrievers import MilvusCollectionHybridSearchRetriever
 from pymilvus import (
     MilvusClient,
@@ -14,17 +13,10 @@ from pymilvus import (
 )
 
 from models import embedder, bm25
-from .utils import update_collection
-
+from ..storage.load_data import dataset, parse_doc
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, filename="../logs/milvus.log", filemode="w")
-
-# Load dataset variable
-try:
-    dataset = load_dataset('IlyaGusev/habr', split="train", streaming=True)
-except:
-    logging.error("Error occured during huggingface dataset loading on streaming mode")
 
 # Connect to Milvus
 logging.info("Milvus connection...")
@@ -75,7 +67,25 @@ collection.create_index("sparse_vector", sparse_index)
 collection.flush()
 
 # Add data
-collection = update_collection(dataset, log_step=10000)
+logging.info("Data loading...")
+entities = []
+for index, doc in enumerate(dataset):
+    text = parse_doc(doc)
+    entity = {
+        dense_field: embedder.embed_query(text),
+        sparse_field: bm25.embed_query(text),
+        text_field: text,
+    }
+    entities.append(entity)
+    if index // 10000 == 0:
+        logging.info("Iteration: ", index + 1)
+        collection.insert(entities)
+        del entities
+        entities = []
+
+collection.insert(entities)
+collection.load()
+logging.info("The data download is complete.")
 
 # Create retriever
 logging.info("Retriever creation...")

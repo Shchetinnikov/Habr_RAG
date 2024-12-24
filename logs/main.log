@@ -1,0 +1,4 @@
+2024-12-24 17:49:03,174 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: deepvk/USER-bge-m3
+2024-12-24 17:49:05,777 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2024-12-24 17:49:05,777 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: intfloat/multilingual-e5-large
+2024-12-24 17:49:09,338 - root - INFO - Milvus connection...
