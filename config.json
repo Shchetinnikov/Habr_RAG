@@ -1,0 +1,4 @@
+{
+    "database_path": "./storage/data/habr.db",
+    "corpus_path": "./storage/data/corpus.csv"
+}
