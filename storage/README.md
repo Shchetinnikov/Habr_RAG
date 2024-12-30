@@ -1,7 +1,7 @@
 # Storage
 Milvus-based storage
 
-## Install Milvus in Docker
+## Install and Run Milvus
 Milvus provides an installation script to install it as a docker container. The script is available in the Milvus repository. To install Milvus in Docker, just run
 ```
 bash script.sh
