@@ -24,18 +24,6 @@ if __name__ == "__main__":
     chunks = vector_store.similarity_search_with_score(query, k=5)
     step_back_chunks = vector_store.similarity_search_with_score(step_back_query, k=5)
 
-
-    # Get new docs and chunks from Habr if nessesary
-    # from storage.parsing.create_habr import parse_docs
-    # from storage.utils import update_collection
-
-    # new_docs = parse_docs(query, step_back_query)
-    # update_collection(new_docs)
-    # new_chunks = retriever.invoke(query)
-    # new_step_back_chunks = retriever.invoke(step_back_query)
-
-
-
     # Reranking
     logger.info("Chunks reranking...")
     reranked_chunks = rerank(query, [chunks + step_back_chunks])[:5]
@@ -46,19 +34,3 @@ if __name__ == "__main__":
     messages = prompt.invoke({"question": query, 
                               "context": context})
     response = llm.invoke(messages)
-
-
-    # from langchain_core.runnables import RunnablePassthrough
-    # from langchain_core.output_parsers import StrOutputParser
-
-    # qa_chain = (
-    #     {
-    #         "context": vector_store.as_retriever() | format_docs,
-    #         "question": RunnablePassthrough(),
-    #     }
-    #     | prompt
-    #     | llm
-    #     | StrOutputParser()
-    # )
-
-    # print(qa_chain.invoke(query))

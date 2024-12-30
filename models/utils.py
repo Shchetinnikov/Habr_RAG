@@ -11,24 +11,6 @@ from models.models import llm, reranker
 setup_logging(os.path.basename(__file__).split('.')[0])
 logger = logging.getLogger(__name__)
 
-# from models.models import bm25
-# # Get key words from query
-# def get_key_words(query):
-#     term_importance = {}
-
-#     for term in bm25.analyzer.tokenizer.tokenize(query):
-#         importances = bm25.bm25_ef.encode_queries([term]).toarray()[0]
-#         indexes = np.where(importances != 0)[0]
-#         index = indexes[0] if len(indexes) != 0 else 0
-#         importance = importances[index]
-
-#         term_importance[term] = importance.item()
-
-#     term_importance = {k: v for k, v in sorted(term_importance.items(), key=lambda item: item[1], reverse=True)}
-#     key_words = list(term_importance.keys())[:3]
-    
-#     return key_words
-
 def rerank(query: str, chunks: List[Document]) -> List[Document]:
     logger.info("Documents reranking...")
     input_texts = [f'query: {query}'] + \
