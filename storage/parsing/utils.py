@@ -5,7 +5,7 @@ import json
 import re
 import simdjson
 
-from storage.parsing.lang_detector import FasttextLanguageDetector
+from lang_detector import FasttextLanguageDetector
 
 parser = simdjson.Parser()
 

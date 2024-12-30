@@ -1,27 +1,38 @@
+import os
+import logging
+from typing import List
 import numpy as np
-from models.models import reranker, bm25
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.documents import Document
 
-# Get key words from query
-def get_key_words(query):
-    term_importance = {}
+from logs.logger import setup_logging
+from models.models import llm, reranker
 
-    for term in bm25.analyzer.tokenizer.tokenize(query):
-        importances = bm25.bm25_ef.encode_queries([term]).toarray()[0]
-        indexes = np.where(importances != 0)[0]
-        index = indexes[0] if len(indexes) != 0 else 0
-        importance = importances[index]
+setup_logging(os.path.basename(__file__).split('.')[0])
+logger = logging.getLogger(__name__)
 
-        term_importance[term] = importance.item()
+# from models.models import bm25
+# # Get key words from query
+# def get_key_words(query):
+#     term_importance = {}
 
-    term_importance = {k: v for k, v in sorted(term_importance.items(), key=lambda item: item[1], reverse=True)}
-    key_words = list(term_importance.keys())[:3]
+#     for term in bm25.analyzer.tokenizer.tokenize(query):
+#         importances = bm25.bm25_ef.encode_queries([term]).toarray()[0]
+#         indexes = np.where(importances != 0)[0]
+#         index = indexes[0] if len(indexes) != 0 else 0
+#         importance = importances[index]
+
+#         term_importance[term] = importance.item()
+
+#     term_importance = {k: v for k, v in sorted(term_importance.items(), key=lambda item: item[1], reverse=True)}
+#     key_words = list(term_importance.keys())[:3]
     
-    return key_words
+#     return key_words
 
-def rerank(query, texts):
+def rerank(query: str, chunks: List[Document]) -> List[Document]:
+    logger.info("Documents reranking...")
     input_texts = [f'query: {query}'] + \
-                  [f"passage: {text}" for text in texts]
+                  [f"passage: {doc.page_content}" for doc in chunks]
     embeddings = reranker.encode(input_texts, normalize_embeddings=True)
 
     query_emb = embeddings[0]
@@ -32,10 +43,12 @@ def rerank(query, texts):
         ranks[index] = reranker.similarity(query_emb, passage_emb).item()
     indexes = ranks.argsort()[::-1]
 
-    return [texts[idx] for idx in indexes]
+    logger.info("Documents reranking is completed.")
+    return [chunks[idx] for idx in indexes]
 
 
-def step_back(query, llm):
+def step_back(query: str) -> str:
+    logger.info("Step-back prompting...")
     system = """Вы являетесь экспертом в области мировых знаний. 
                 Ваша задача - выполнить step-back, перефразировать вопрос в более общий, на который проще ответить. 
 
@@ -70,4 +83,5 @@ def step_back(query, llm):
     messages = chat_template.format_messages(question=query)
     step_back_query = llm.invoke(messages).content
 
+    logger.info("Step-back prompting is completed.")
     return step_back_query
