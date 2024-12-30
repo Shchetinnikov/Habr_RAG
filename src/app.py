@@ -38,6 +38,9 @@ reranked_texts = rerank(query, texts)[:5]
 docs_content = "\n\n".join(doc for doc in reranked_texts)
 
 # LLM-inference
+"""
+    Степень уверенности ответа
+"""
 prompt = hub.pull("rlm/rag-prompt")
 messages = prompt.invoke({"question": query, "context": docs_content})
 
