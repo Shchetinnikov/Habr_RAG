@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List, Tuple
 import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pandas as pd
@@ -19,17 +20,14 @@ def load_corpus():
     return corpus
 
 # Format documents to context
-def format_docs(docs: Document) -> str:
+def format_docs(docs: List[Tuple[Document, float]]) -> str:
     logger.info("Formating documents to context...")
     context = []
-    for doc in docs:
+    for doc, score in docs:
          context.append(f"""
                         URL: {doc.metadata["url"]}
                         Title: {doc.metadata["title"]}
                         Content: {doc.page_content}
-                        Author: {doc.metadata["author"]}
-                        Original author: {doc.metadata["original_author"]}
-                        Original url: {doc.metadata["original_url"]}
                         """) 
     logger.info("Formating is completed.")
     return "\n\n".join(context)

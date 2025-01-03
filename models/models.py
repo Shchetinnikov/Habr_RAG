@@ -7,13 +7,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from sentence_transformers import SentenceTransformer
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.prompts import PromptTemplate
-from langchain_milvus.utils.sparse import BM25SparseEmbedding
+# from langchain_milvus.utils.sparse import BM25SparseEmbedding
 from langchain_groq import ChatGroq
 
 from logs.logger import setup_logging
 from storage.utils import load_corpus
 
-load_dotenv(".env")
+load_dotenv()
 setup_logging(os.path.basename(__file__).split('.')[0])
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ embedder = HuggingFaceBgeEmbeddings(
     encode_kwargs=encode_kwargs
 )
 
-logger.info("BM25 loading...")
-bm25 = BM25SparseEmbedding(corpus=load_corpus())
+# logger.info("BM25 loading...")
+# bm25 = BM25SparseEmbedding(corpus=load_corpus())
 
 logger.info("Reranker loading...")
 reranker = SentenceTransformer('intfloat/multilingual-e5-large')
@@ -45,7 +45,9 @@ prompt = PromptTemplate(
     Пожалуйста, предоставьте список URL-адресов наиболее релевантных документов.
     """
     )
-llm = ChatGroq(model="llama-3.3-70b-versatile")
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    api_key=os.getenv("GROQ_API_KEY"))
 
 
 if __name__ == "__main__":

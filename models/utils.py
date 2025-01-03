@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import List
+from typing import List, Tuple
 import numpy as np
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
@@ -11,16 +11,16 @@ from models.models import llm, reranker
 setup_logging(os.path.basename(__file__).split('.')[0])
 logger = logging.getLogger(__name__)
 
-def rerank(query: str, chunks: List[Document]) -> List[Document]:
+def rerank(query: str, chunks: List[Tuple[Document, float]]) -> List[Document]:
     logger.info("Documents reranking...")
     input_texts = [f'query: {query}'] + \
-                  [f"passage: {doc.page_content}" for doc in chunks]
+                  [f"passage: {doc[0].page_content}" for doc in chunks]
     embeddings = reranker.encode(input_texts, normalize_embeddings=True)
 
     query_emb = embeddings[0]
     passage_embs = embeddings[1:]
 
-    ranks = np.array(passage_embs.shape[0])
+    ranks = np.zeros(passage_embs.shape[0])
     for index, passage_emb in enumerate(passage_embs):
         ranks[index] = reranker.similarity(query_emb, passage_emb).item()
     indexes = ranks.argsort()[::-1]

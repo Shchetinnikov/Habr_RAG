@@ -14,23 +14,33 @@ if __name__ == "__main__":
     setup_logging(os.path.basename(__file__).split('.')[0])
     logger = logging.getLogger(__name__)
 
-    # Query and Step-back query
-    logger.info("Query reading and stepback prompting...")
-    query = '...'
-    step_back_query = step_back(query)
+    while True:        
+        # Query and Step-back query
+        logger.info("Query reading and stepback prompting...")
+        query = str(input("Введите запрос: ")).encode('utf-8', 'ignore').decode('utf-8')
+        step_back_query = step_back(query)
 
-    # Get chunks
-    logger.info("Query to vector store...")
-    chunks = vector_store.similarity_search_with_score(query, k=5)
-    step_back_chunks = vector_store.similarity_search_with_score(step_back_query, k=5)
+        # Get chunks
+        logger.info("Query to vector store...")
+        chunks = vector_store.similarity_search_with_score(query, k=5)
+        step_back_chunks = vector_store.similarity_search_with_score(step_back_query, k=5)
 
-    # Reranking
-    logger.info("Chunks reranking...")
-    reranked_chunks = rerank(query, [chunks + step_back_chunks])[:5]
-    context = format_docs(reranked_chunks)   
+        # Reranking
+        logger.info("Chunks reranking...")
+        reranked_chunks = rerank(query, chunks + step_back_chunks)
 
-    # LLM-inference
-    logger.info("LLM inference...")
-    messages = prompt.invoke({"question": query, 
-                              "context": context})
-    response = llm.invoke(messages)
+        # LLM-inference
+        logger.info("LLM inference...")
+        context = format_docs(reranked_chunks)   
+        messages = prompt.invoke({"question": query,
+                                  "context": context})
+        while llm.get_num_tokens(messages.text) > 1024:
+            n = len(reranked_chunks)
+            reranked_chunks = reranked_chunks[:n - 1]
+            context = format_docs(reranked_chunks)   
+            messages = prompt.invoke({"question": query,
+                                      "context": context})
+            
+        response = llm.invoke(messages)
+        print(response.content)
+
