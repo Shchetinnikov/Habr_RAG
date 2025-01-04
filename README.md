@@ -77,9 +77,8 @@
 
 
 ### Валидация и тестирование
-<video width="512" height="512" controls>
-  <source src="./content/video.mov">
-</video>
+Видео тестового запуска: `./content/video.mp4`
+
 
 ### Инструкция по запуску
 1. Создать директорию `./storage/data`, скачать файл `habr20.db` и добавить в созданную папку.\
