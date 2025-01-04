@@ -80,6 +80,7 @@
 <video width="512" height="512" controls>
   <source src="./content/video.mp4" type="video/mp4">
 </video>
+
 ### Инструкция по запуску
 1. Создать директорию `./storage/data`, скачать файл `habr20.db` и добавить в созданную папку.\
 Файлы для скачивания: [ссылка](https://disk.yandex.ru/d/782ejhiiQc3z7A)
