@@ -35,7 +35,7 @@
     - apple
     - microsoft
 <div>
-    <img src="./imgs/eda_topics.png">
+    <img src="./content/eda_topics.png">
 <div>
 
 <b>Выводы:</b>
@@ -64,7 +64,7 @@
 4. Найденные чанки реранжируются.
 5. Найденные чанки передаются LLM и генерируется ответ.
 <div>
-    <img src="imgs\Architecture.jpg">
+    <img src="./content/architecture.jpg">
 <div>
 
 #### Компоненты
@@ -77,11 +77,16 @@
 
 
 ### Валидация и тестирование
-
+<video width="512" height="512" controls>
+  <source src="./content/video.mp4" type="video/mp4">
+</video>
 ### Инструкция по запуску
 1. Создать директорию `./storage/data`, скачать файл `habr20.db` и добавить в созданную папку.\
 Файлы для скачивания: [ссылка](https://disk.yandex.ru/d/782ejhiiQc3z7A)
-2. Чтобы запустить приложение, выполните команду:
+2. Чтобы запустить приложение, выполните команды:
 ```
-python app.py
+uvicorn server.app:app
+```
+```
+streamlit run client/app.py
 ```

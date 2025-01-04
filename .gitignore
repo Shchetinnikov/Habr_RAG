@@ -163,7 +163,10 @@ cython_debug/
 #.idea/
 
 # Datasets
-*/data
+data/
 
 # Fasttext models
-storage/models
+/storage/models
+
+# Config
+config.json

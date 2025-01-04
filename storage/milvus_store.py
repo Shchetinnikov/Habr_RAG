@@ -2,12 +2,13 @@ import os
 import sys
 import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from langchain_milvus import Milvus
 
-from logs.logger import setup_logging
-# from models.models import embedder, bm25
-from models.models import embedder
-from config import config
+from server.logs.logger import setup_logging
+# from server.models.models import embedder, bm25
+from server.models.models import embedder
+from config import DATABASE_PATH
 
 setup_logging(os.path.basename(__file__).split('.')[0])
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ dense_field = "dense_vector"
 sparse_field = "sparse_vector"
 
 logger.info("Milvus vector store loading...")
-URI = config["database_path"]
+URI = DATABASE_PATH
 # vector_store = Milvus(
 #     embedding_function=[dense_embedding_func, sparse_embedding_func],
 #     collection_name="harb_collection",
