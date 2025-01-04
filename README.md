@@ -78,7 +78,7 @@
 
 ### Валидация и тестирование
 <video width="512" height="512" controls>
-  <source src="./content/video.mp4" type="video/mp4">
+  <source src="./content/video.mov">
 </video>
 
 ### Инструкция по запуску
