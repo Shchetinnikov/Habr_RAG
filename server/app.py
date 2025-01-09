@@ -52,7 +52,8 @@ def process_user_message(data: Message):
     return {"status": 200,
             "data": {
                 "role": "assistant",
-                "content": response.content
+                "content": response.content,
+                "context": context
             }}
 
 
